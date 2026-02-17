@@ -67,8 +67,8 @@ function fillSelect(selectId, values, allLabel) {
 
 function applyFilters(rows, estado, nivel) {
   return rows.filter(r => {
-    const okEstado = !estado || r["Estado"] === estado;
-    const okNivel = !nivel || r["Nivel_de_rentabilidad"] === nivel;
+    const okEstado = !estado || r["estado"] === estado;
+    const okNivel = !nivel || r["nivel_de_rentabi"] === nivel;
     return okEstado && okNivel;
   });
 }
