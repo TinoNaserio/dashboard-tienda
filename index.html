@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Tienda Deportiva</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="container">
+    <h1>Dashboard</h1>
+    <p>Visualización de resultados a partir de consultas SQL sobre SQLite.</p>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Filtros</h2>
+      <div class="filters">
+        <div>
+          <label for="filtroEstado"><strong>Estado</strong></label>
+          <select id="filtroEstado"></select>
+        </div>
+        <div>
+          <label for="filtroNivel"><strong>Nivel de rentabilidad</strong></label>
+          <select id="filtroNivel"></select>
+        </div>
+        <div>
+          <button id="btnReset">Reiniciar filtros</button>
+        </div>
+      </div>
+      <p class="note">
+        Estos filtros afectan a las tablas y gráficas que usan datos filtrables.
+      </p>
+    </section>
+
+    <section>
+      <h2>Indicadores</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-title">Registros</div><div id="kpiRegistros" class="kpi-value">-</div></div>
+        <div class="kpi"><div class="kpi-title">Unidades</div><div id="kpiUnidades" class="kpi-value">-</div></div>
+        <div class="kpi"><div class="kpi-title">Beneficio total</div><div id="kpiBeneficioTotal" class="kpi-value">-</div></div>
+        <div class="kpi"><div class="kpi-title">Beneficio medio</div><div id="kpiBeneficioMedio" class="kpi-value">-</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gráficas</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Beneficio por nivel de rentabilidad</h3>
+          <canvas id="chartBeneficioNivel"></canvas>
+        </div>
+        <div class="card">
+          <h3>Ventas por estado</h3>
+          <canvas id="chartVentasEstado"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tablas</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Top 10 productos por beneficio</h3>
+          <table id="tablaTopProductos"></table>
+        </div>
+        <div class="card">
+          <h3>Ventas por estado</h3>
+          <table id="tablaVentasEstado"></table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Hallazgos</h2>
+      <div class="card">
+        <p><strong>Hallazgo 1:</strong> (escribe aquí una conclusión basada en datos)</p>
+        <p><strong>Hallazgo 2:</strong> (escribe aquí una conclusión basada en datos)</p>
+        <p><strong>Hallazgo 3:</strong> (escribe aquí una conclusión basada en datos)</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Metodología</h2>
+      <div class="card">
+        <p>
+          Datos originales: CSV de ventas de tienda deportiva. Se importaron a SQLite y se crearon consultas SQL y una vista de limpieza para convertir importes en texto con símbolo € a números.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p>Proyecto de 1º de Bachillerato.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
