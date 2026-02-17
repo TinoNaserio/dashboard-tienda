@@ -1,16 +1,20 @@
 async function fetchCSV(path) {
-  const res = await fetch(path);
+  const res = await fetch(path, { cache: "no-store" });
+  if (!res.ok) throw new Error(`No se pudo cargar ${path}: ${res.status}`);
   const text = await res.text();
-  return parseCSV(text);
+  return parseSimpleCSV(text);
 }
 
-function parseCSV(text) {
+// CSV sencillo: una fila por línea, separador coma, valores opcionalmente entre comillas
+function parseSimpleCSV(text) {
   const lines = text.trim().split(/\r?\n/);
-  const headers = lines[0].split(",").map(h => h.trim());
+  if (lines.length < 2) return [];
+  const headers = splitCSVLine(lines[0]).map(h => stripQuotes(h));
   const rows = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(",");
+    if (!lines[i].trim()) continue;
+    const cols = splitCSVLine(lines[i]).map(c => stripQuotes(c));
     const row = {};
     headers.forEach((h, idx) => row[h] = (cols[idx] ?? "").trim());
     rows.push(row);
@@ -18,12 +22,35 @@ function parseCSV(text) {
   return rows;
 }
 
+function stripQuotes(s) {
+  return s.replace(/^"(.*)"$/, "$1");
+}
+
+// Parte la línea respetando comillas
+function splitCSVLine(line) {
+  const out = [];
+  let cur = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') inQuotes = !inQuotes;
+    else if (ch === "," && !inQuotes) { out.push(cur); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
+
 function setKPI(id, value) {
-  document.getElementById(id).textContent = value;
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
 }
 
 function renderTable(tableId, rows, columns, headersMap) {
   const table = document.getElementById(tableId);
+  if (!table) return;
+
   if (!rows.length) {
     table.innerHTML = "<tr><td>No hay datos</td></tr>";
     return;
@@ -44,9 +71,7 @@ function renderTable(tableId, rows, columns, headersMap) {
 }
 
 function uniqueValues(rows, key) {
-  const s = new Set();
-  rows.forEach(r => s.add(r[key]));
-  return Array.from(s).filter(v => v !== undefined && v !== "");
+  return Array.from(new Set(rows.map(r => r[key]).filter(v => v !== undefined && v !== "")));
 }
 
 function fillSelect(selectId, values, allLabel) {
@@ -81,14 +106,12 @@ function renderChartBeneficioNivel(rows) {
   const data = rows.map(r => Number(r["beneficio_total"]));
 
   const ctx = document.getElementById("chartBeneficioNivel");
+  if (!ctx || !window.Chart) return;
   if (chart1) chart1.destroy();
 
   chart1 = new Chart(ctx, {
     type: "bar",
-    data: {
-      labels,
-      datasets: [{ label: "Beneficio total", data }]
-    }
+    data: { labels, datasets: [{ label: "Beneficio total", data }] }
   });
 }
 
@@ -97,25 +120,21 @@ function renderChartVentasEstado(rows) {
   const data = rows.map(r => Number(r["num_ventas"]));
 
   const ctx = document.getElementById("chartVentasEstado");
+  if (!ctx || !window.Chart) return;
   if (chart2) chart2.destroy();
 
   chart2 = new Chart(ctx, {
     type: "bar",
-    data: {
-      labels,
-      datasets: [{ label: "Número de ventas", data }]
-    }
+    data: { labels, datasets: [{ label: "Número de ventas", data }] }
   });
 }
 
 async function init() {
-  // Cargar CSV
   const kpis = await fetchCSV("data/kpis.csv");
   const beneficioNivel = await fetchCSV("data/beneficio_por_nivel.csv");
   const ventasEstado = await fetchCSV("data/ventas_por_estado.csv");
   const topProductos = await fetchCSV("data/top_productos_beneficio.csv");
 
-  // Pintar KPIs
   if (kpis.length) {
     setKPI("kpiRegistros", kpis[0]["num_registros"]);
     setKPI("kpiUnidades", kpis[0]["total_unidades"]);
@@ -123,16 +142,14 @@ async function init() {
     setKPI("kpiBeneficioMedio", kpis[0]["beneficio_medio"]);
   }
 
-  // Gráficas (no dependen de filtros en este ejemplo)
   renderChartBeneficioNivel(beneficioNivel);
   renderChartVentasEstado(ventasEstado);
 
-  // Tablas
   renderTable(
     "tablaTopProductos",
     topProductos,
-    ["Producto", "beneficio_total", "unidades"],
-    { Producto: "Producto", beneficio_total: "Beneficio total", unidades: "Unidades" }
+    ["producto", "beneficio_total", "unidades"],
+    { producto: "Producto", beneficio_total: "Beneficio total", unidades: "Unidades" }
   );
 
   renderTable(
@@ -142,30 +159,15 @@ async function init() {
     { estado: "Estado", num_ventas: "Nº ventas", unidades: "Unidades" }
   );
 
-  // Filtros: para que funcionen de verdad necesitamos datos “fila a fila”.
-  // Como ahora estamos usando CSV agregados, haremos filtros sobre una tabla que sí tenga Estado y Nivel.
-  // Solución: exportar un CSV adicional con detalle.
-  // Para esta práctica, vamos a generar un CSV de detalle.
-  // Si no existe, se desactivan filtros.
+  // Filtros + KPIs recalculados desde detalle
   let detalle = [];
-  try {
-    detalle = await fetchCSV("data/detalle.csv");
-  } catch (e) {
-    detalle = [];
-  }
+  try { detalle = await fetchCSV("data/detalle.csv"); } catch (e) { detalle = []; }
 
   const filtroEstado = document.getElementById("filtroEstado");
   const filtroNivel = document.getElementById("filtroNivel");
   const btnReset = document.getElementById("btnReset");
 
-  if (!detalle.length) {
-    filtroEstado.innerHTML = "<option>Sin detalle.csv</option>";
-    filtroNivel.innerHTML = "<option>Sin detalle.csv</option>";
-    filtroEstado.disabled = true;
-    filtroNivel.disabled = true;
-    btnReset.disabled = true;
-    return;
-  }
+  if (!detalle.length) return;
 
   fillSelect("filtroEstado", uniqueValues(detalle, "estado"), "Todos los estados");
   fillSelect("filtroNivel", uniqueValues(detalle, "nivel_de_rentabi"), "Todos los niveles");
@@ -175,7 +177,6 @@ async function init() {
     const nivel = filtroNivel.value;
     const filtrado = applyFilters(detalle, estado, nivel);
 
-    // Ejemplo: recalcular KPIs filtrados desde detalle
     const num = filtrado.length;
     const unidades = filtrado.reduce((acc, r) => acc + Number(r["unidades_vendida"] || 0), 0);
     const beneficio = filtrado.reduce((acc, r) => acc + Number(r["Beneficio_total_eur"] || 0), 0);
@@ -197,4 +198,6 @@ async function init() {
   updateFiltered();
 }
 
-init();
+init().catch(err => {
+  console.error(err);
+});
