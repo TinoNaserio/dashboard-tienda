@@ -18,20 +18,18 @@
       <h2>Filtros</h2>
       <div class="filters">
         <div>
-          <label for="filtroEstado"><strong>Estado</strong></label>
+          <label for="filtroEstado"><strong>Estado</strong></label><br>
           <select id="filtroEstado"></select>
         </div>
         <div>
-          <label for="filtroNivel"><strong>Nivel de rentabilidad</strong></label>
+          <label for="filtroNivel"><strong>Nivel de rentabilidad</strong></label><br>
           <select id="filtroNivel"></select>
         </div>
         <div>
           <button id="btnReset">Reiniciar filtros</button>
         </div>
       </div>
-      <p class="note">
-        Estos filtros afectan a las tablas y gráficas que usan datos filtrables.
-      </p>
+      <p class="note">Estos filtros recalculan los KPIs usando data/detalle.csv</p>
     </section>
 
     <section>
@@ -69,24 +67,6 @@
           <h3>Ventas por estado</h3>
           <table id="tablaVentasEstado"></table>
         </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Hallazgos</h2>
-      <div class="card">
-        <p><strong>Hallazgo 1:</strong> (escribe aquí una conclusión basada en datos)</p>
-        <p><strong>Hallazgo 2:</strong> (escribe aquí una conclusión basada en datos)</p>
-        <p><strong>Hallazgo 3:</strong> (escribe aquí una conclusión basada en datos)</p>
-      </div>
-    </section>
-
-    <section>
-      <h2>Metodología</h2>
-      <div class="card">
-        <p>
-          Datos originales: CSV de ventas de tienda deportiva. Se importaron a SQLite y se crearon consultas SQL y una vista de limpieza para convertir importes en texto con símbolo € a números.
-        </p>
       </div>
     </section>
   </main>
