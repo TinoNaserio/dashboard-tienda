@@ -77,7 +77,7 @@ let chart1 = null;
 let chart2 = null;
 
 function renderChartBeneficioNivel(rows) {
-  const labels = rows.map(r => r["Nivel_de_rentabilidad"]);
+  const labels = rows.map(r => r["nivel_de_rentabi"]);
   const data = rows.map(r => Number(r["beneficio_total"]));
 
   const ctx = document.getElementById("chartBeneficioNivel");
@@ -93,7 +93,7 @@ function renderChartBeneficioNivel(rows) {
 }
 
 function renderChartVentasEstado(rows) {
-  const labels = rows.map(r => r["Estado"]);
+  const labels = rows.map(r => r["estado"]);
   const data = rows.map(r => Number(r["num_ventas"]));
 
   const ctx = document.getElementById("chartVentasEstado");
@@ -138,8 +138,8 @@ async function init() {
   renderTable(
     "tablaVentasEstado",
     ventasEstado,
-    ["Estado", "num_ventas", "unidades"],
-    { Estado: "Estado", num_ventas: "Nº ventas", unidades: "Unidades" }
+    ["estado", "num_ventas", "unidades"],
+    { estado: "Estado", num_ventas: "Nº ventas", unidades: "Unidades" }
   );
 
   // Filtros: para que funcionen de verdad necesitamos datos “fila a fila”.
