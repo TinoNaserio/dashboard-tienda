@@ -167,8 +167,8 @@ async function init() {
     return;
   }
 
-  fillSelect("filtroEstado", uniqueValues(detalle, "Estado"), "Todos los estados");
-  fillSelect("filtroNivel", uniqueValues(detalle, "Nivel_de_rentabilidad"), "Todos los niveles");
+  fillSelect("filtroEstado", uniqueValues(detalle, "estado"), "Todos los estados");
+  fillSelect("filtroNivel", uniqueValues(detalle, "nivel_de_rentabi"), "Todos los niveles");
 
   function updateFiltered() {
     const estado = filtroEstado.value;
@@ -177,8 +177,8 @@ async function init() {
 
     // Ejemplo: recalcular KPIs filtrados desde detalle
     const num = filtrado.length;
-    const unidades = filtrado.reduce((acc, r) => acc + Number(r["Unidades_vendidas"] || 0), 0);
-    const beneficio = filtrado.reduce((acc, r) => acc + Number(r["beneficio_total_num"] || 0), 0);
+    const unidades = filtrado.reduce((acc, r) => acc + Number(r["unidades_vendida"] || 0), 0);
+    const beneficio = filtrado.reduce((acc, r) => acc + Number(r["Beneficio_total_eur"] || 0), 0);
 
     setKPI("kpiRegistros", num);
     setKPI("kpiUnidades", unidades);
